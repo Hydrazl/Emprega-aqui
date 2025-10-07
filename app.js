@@ -1,12 +1,26 @@
 import express from 'express';
+import { engine } from 'express-handlebars'
 import db from './db/connnection.js';
+import path from 'path';
 import bodyParser from 'body-parser';
 import jobsRoutes from './routes/jobs.js'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false}));
+
+// handlebars
+app.set('views', path.join(__dirname, 'views'));
+app.engine('handlebars', engine({defaultLayout: 'main'}))
+app.set('view engine', 'handlebars');
+
+// static folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 db.authenticate()
   .then(() => {
@@ -17,7 +31,7 @@ db.authenticate()
     });
 
 app.get('/', (req, res) => {
-    res.send('Server on!');
+    res.render('index');
 });
 
 app.listen(port, () => {
